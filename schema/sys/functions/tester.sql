@@ -3,10 +3,10 @@ CREATE OR REPLACE FUNCTION sys.tester(
   IN p_thing_2  TEXT,
   IN p_thing_3  TEXT = 'hello'
 )
-RETURNS INTEGER
+RETURNS UUID
 AS $$
 BEGIN
-  RETURN 2;
+  RETURN new_uuid();
 END;
 $$
 LANGUAGE plpgsql

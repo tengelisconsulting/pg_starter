@@ -89,5 +89,5 @@ def shutdown():
 
 
 def load_schema_functions(schema) -> List[FnRecord]:
-    raw_fns = with_cur(_fetch_schema_functions)(schema)
+    raw_fns = _with_cur(_fetch_schema_functions)(schema)
     return [_parse_raw_fn(f) for f in raw_fns]
