@@ -3,22 +3,13 @@ from typing import List, NamedTuple, Tuple, Optional, Any
 
 import psycopg2
 
+from typez import FnArg, FnRecord
+
 
 RawFn = Tuple[str, str]
 
-class FnArg(NamedTuple):
-    name: str
-    type: str
-    default: Optional[Any] = None
 
-
-class FnRecord(NamedTuple):
-    name: str
-    ret_type: str
-    args: List[FnArg]
-
-
-# con = None
+con = None
 
 
 def _to_fn_arg(arg_row: List[str])-> FnArg:
