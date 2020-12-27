@@ -1,5 +1,5 @@
 import os
-from typing import List, NamedTuple, Tuple
+from typing import List, NamedTuple, Tuple, Optional, Any
 
 import psycopg2
 
@@ -9,6 +9,7 @@ RawFn = Tuple[str, str]
 class FnArg(NamedTuple):
     name: str
     type: str
+    default: Optional[Any] = None
 
 
 class FnRecord(NamedTuple):
@@ -19,10 +20,20 @@ class FnRecord(NamedTuple):
 # con = None
 
 
+def _to_fn_arg(arg_row: List[str])-> FnArg:
+    if len(arg_row) == 2:
+        # [<var_name>, <var_type>]
+        return FnArg(name=arg_row[0], type=arg_row[1])
+    # [<var_name>, <var_type>, DEFAULT, <default_val::type>]
+    assert 'DEFAULT' == arg_row[2]
+    default = arg_row[3].split("::")[0]
+    return FnArg(name=arg_row[0], type=arg_row[1], default=default)
+
+
 def _parse_raw_fn(raw: RawFn) -> FnRecord:
     name = raw[0]
     args = [a.split(" ") for a in raw[1].split(", ")]
-    fn_args = [FnArg(name=a[0], type=a[1]) for a in args]
+    fn_args = [_to_fn_arg(a) for a in args]
     return FnRecord(name=name, args=fn_args)
 
 
@@ -39,6 +50,17 @@ def _fetch_schema_functions(
     """
     cur.execute(sql, [schema])
     return cur.fetchall()
+
+
+def _with_cur(fn):
+    def impl(*args, **kwargs):
+        cur = con.cursor()
+        try:
+            res = fn(cur, *args, **kwargs)
+        finally:
+            cur.close()
+        return res
+    return impl
 
 
 def connect(
@@ -64,15 +86,6 @@ def shutdown():
     return
 
 
-def with_cur(fn):
-    def impl(*args, **kwargs):
-        cur = con.cursor()
-        try:
-            res = fn(cur, *args, **kwargs)
-        finally:
-            cur.close()
-        return res
-    return impl
-
-
-fetch_schema_functions = with_cur(_fetch_schema_functions)
+def load_schema_functions(schema):
+    raw_fns = with_cur(_fetch_schema_functions)(schema)
+    return [_parse_raw_fn(f) for f in raw_fns]
