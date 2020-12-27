@@ -3,10 +3,10 @@ CREATE OR REPLACE FUNCTION sys.tester(
   IN p_thing_2  TEXT,
   IN p_thing_3  TEXT = 'hello'
 )
-RETURNS TEXT
+RETURNS INTEGER
 AS $$
 BEGIN
-  RETURN p_thing;
+  RETURN 2;
 END;
 $$
 LANGUAGE plpgsql

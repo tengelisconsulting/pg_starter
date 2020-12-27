@@ -14,6 +14,7 @@ class FnArg(NamedTuple):
 
 class FnRecord(NamedTuple):
     name: str
+    ret_type: str
     args: List[FnArg]
 
 
@@ -27,14 +28,23 @@ def _to_fn_arg(arg_row: List[str])-> FnArg:
     # [<var_name>, <var_type>, DEFAULT, <default_val::type>]
     assert 'DEFAULT' == arg_row[2]
     default = arg_row[3].split("::")[0]
-    return FnArg(name=arg_row[0], type=arg_row[1], default=default)
+    return FnArg(
+        name=arg_row[0],
+        type=arg_row[1],
+        default=default
+    )
 
 
 def _parse_raw_fn(raw: RawFn) -> FnRecord:
     name = raw[0]
-    args = [a.split(" ") for a in raw[1].split(", ")]
+    ret_type = raw[1]
+    args = [a.split(" ") for a in raw[2].split(", ")]
     fn_args = [_to_fn_arg(a) for a in args]
-    return FnRecord(name=name, args=fn_args)
+    return FnRecord(
+        name=name,
+        ret_type=ret_type,
+        args=fn_args,
+    )
 
 
 def _fetch_schema_functions(
@@ -42,6 +52,7 @@ def _fetch_schema_functions(
 ) -> List[RawFn]:
     sql = """
       SELECT p.proname fn_name,
+             pg_get_function_result(p.oid),
              pg_get_function_arguments(p.oid) args
         FROM pg_proc p
         JOIN pg_namespace ns
@@ -86,6 +97,6 @@ def shutdown():
     return
 
 
-def load_schema_functions(schema):
+def load_schema_functions(schema) -> List[FnRecord]:
     raw_fns = with_cur(_fetch_schema_functions)(schema)
     return [_parse_raw_fn(f) for f in raw_fns]
