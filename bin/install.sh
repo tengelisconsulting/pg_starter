@@ -1,7 +1,8 @@
 #!/bin/bash
 
-bin_dir=$(dirname "$(readlink -f "$0")")
-DEF_BASE_DIR=${bin_dir}/../schema
+
+DEF_BASE_DIR="${SCHEMA_DEF_DIR}"
+
 
 ATTEMPTS="$1"
 if [[ "${ATTEMPTS}" == "" ]]; then
@@ -63,15 +64,15 @@ run_install() {
 install_with_retries() {
     attempt="1"
     while [[ "${ERRS}" == "1" ]]; do
-        printf "\n\n------------  INSTALL ATTEMPT ${attempt} ----------\n\n\n"
+        printf "\n\n\n\n------------  INSTALL ATTEMPT ${attempt} ----------\n\n\n\n\n"
         ERRS="0"
         run_install
         attempt=$((attempt+1))
         if [[ ${attempt} -gt ${ATTEMPTS} ]]; then
             exit 1
         fi
-        printf "\n\nDB INSTALL SUCCESS\n\n\n"
     done
+    printf "\n\nDB INSTALL SUCCESS\n\n\n"
 }
 
 save_vsn() {
