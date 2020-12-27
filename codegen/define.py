@@ -2,10 +2,6 @@ from typez import FnArg, FnRecord
 
 
 def _get_args_sql(fn: FnRecord) -> str:
-    """
-    Now, apply to all args.
-    In the future, have multiple bodies for default args.
-    """
     return ",\n      ".join([
         f"{fn.args[i].name} => ${fn.args[i].name}::{fn.args[i].type}"
         for i in range(len(fn.args))
@@ -31,7 +27,14 @@ def type_lookup(typename: str) -> str:
 def get_impl_language_args(fn: FnRecord) -> str:
     def fmt_arg(arg: FnArg) -> str:
         arg_type = type_lookup(arg.type)
-        return f"{arg.name}: {arg_type}"
+        if arg.default is None:
+            return f"{arg.name}: {arg_type}"
+        new_default = arg.default
+        if len(arg.default) > 1 \
+           and arg.default[0] == "'" \
+           and arg.default[-1] == "'":
+            new_default = "\"" + arg.default[1:-1] + "\""
+        return f"{arg.name}: {arg_type} = {new_default}"
     arg_s = ", ".join([fmt_arg(arg) for arg in fn.args])
     return arg_s
 
