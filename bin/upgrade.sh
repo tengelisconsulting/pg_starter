@@ -7,8 +7,7 @@
 # Similarly with the file 'post.sql' in this directory
 
 
-bin_dir=$(dirname "$(readlink -f "$0")")
-DB_DIR=${bin_dir}/..
+DB_DIR="${THIS_DIR}"
 
 alias psql="psql -h ${PGHOST} -U ${PGUSER}"
 

@@ -1,13 +1,10 @@
 #!/bin/bash
 
 
-DEF_BASE_DIR="${SCHEMA_DEF_DIR}"
+DEF_BASE_DIR="${THIS_DIR}/schema"
 
-
-ATTEMPTS="$1"
-if [[ "${ATTEMPTS}" == "" ]]; then
-    ATTEMPTS="10"
-fi
+FORCE="$1"
+ATTEMPTS="10"
 
 alias psql="psql -h ${PGHOST} -U ${PGUSER} --password ${PGPASSWORD}"
 
@@ -36,7 +33,7 @@ check_clean() {
         return
     fi
     EXISTING_VSN=$(psql -t -c "SELECT 1 FROM vsn;")
-    if [[ ! "${EXISTING_VSN}" == "" ]]; then
+    if [[ ! "${EXISTING_VSN}" == "" ]] && [[ "${FORCE}" == "" ]] ; then
         echo "CAN'T INSTALL, DB HAS EXISTING INSTALL"
         exit 1
     fi
