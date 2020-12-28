@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION license_create(
+CREATE OR REPLACE FUNCTION sys.license_create(
   IN p_license_code  TEXT,
   IN p_adhoc  JSONB  DEFAULT NULL
 )

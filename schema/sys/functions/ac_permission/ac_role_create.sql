@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_role_create(
+CREATE OR REPLACE FUNCTION sys.ac_role_create(
   IN p_role_name  TEXT
 )
 RETURNS UUID

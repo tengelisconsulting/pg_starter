@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_user_create_pw(
+CREATE OR REPLACE FUNCTION sys.ac_user_create_pw(
   IN p_email  TEXT,
   IN p_pw_hash  TEXT,
   IN p_adhoc  JSONB  DEFAULT NULL

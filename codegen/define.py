@@ -21,6 +21,8 @@ def type_lookup(typename: str) -> str:
         "text": "String",
         "integer": "Int",
         "uuid": "String",
+        "json": "String",
+        "jsonb": "String",
     }[typename]
 
 
@@ -30,6 +32,8 @@ def get_impl_language_args(fn: FnRecord) -> str:
         if arg.default is None:
             return f"{arg.name}: {arg_type}"
         new_default = arg.default
+        if arg.default == "NULL":
+            new_default = "null"
         if len(arg.default) > 1 \
            and arg.default[0] == "'" \
            and arg.default[-1] == "'":

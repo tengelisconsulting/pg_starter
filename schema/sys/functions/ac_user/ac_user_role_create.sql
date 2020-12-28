@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_user_role_create(
+CREATE OR REPLACE FUNCTION sys.ac_user_role_create(
   IN p_user_id  UUID,
   IN p_role_name  TEXT
 )

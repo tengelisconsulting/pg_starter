@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION user_license_set_granted(
+CREATE OR REPLACE FUNCTION sys.user_license_set_granted(
   IN p_user_id  UUID,
   IN p_license_id  UUID,
   IN p_quantity  INTEGER

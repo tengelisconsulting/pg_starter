@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_user_delete(
+CREATE OR REPLACE FUNCTION sys.ac_user_delete(
   IN p_user_id  UUID
 )
 RETURNS INTEGER

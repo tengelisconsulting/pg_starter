@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_user_update(
+CREATE OR REPLACE FUNCTION sys.ac_user_update(
   IN p_user_id  UUID,
   IN p_adhoc  JSON  DEFAULT NULL
 )

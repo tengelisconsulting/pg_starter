@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION ac_permission_create(
+CREATE OR REPLACE FUNCTION sys.ac_permission_create(
   IN p_permission_name  TEXT
 )
 RETURNS UUID
