@@ -61,16 +61,28 @@ def _snake_case_to_camel(word):
 
 
 def get_impl_language_model_def(schema: str, view: TableRecord):
-    name = _snake_case_to_camel(view.name)
+    nt_name = _snake_case_to_camel(view.name)
     props = [f"{col.name}: {_type_lookup(col.type)}" for col in view.columns]
     props_content = "\n    ".join(props)
-    return f"""class {name}(NamedTuple):
+    named_tuple = f"""class {nt_name}(NamedTuple):
     {props_content}
 """
+    column_content = "\n    ".join([f"'{col.name}': {view.name}_table.{col.name}," for col in view.columns])
+    columns = f"""{view.name}_table = Table("{view.name}")
+{view.name} = Box({{
+    'table_ref': {view.name}_table,
+    {column_content}
+}})"""
+    return f"""{named_tuple}
+
+{columns}"""
 
 
 def wrap_view_defs(contents: str) -> str:
     return f"""from typing import NamedTuple, Dict
+
+from box import Box
+from pypika import Table
 
 
 {contents}
