@@ -2,12 +2,13 @@ from typing import List
 
 from typez import DefineLang, FnRecord
 from . import scala_define
+from . import python_define
 
 
 def _get_def_module(lang: DefineLang):
     return {
         DefineLang.scala: scala_define,
-        # DefineLang.python: scala_define,
+        DefineLang.python: python_define,
     }[lang]
 
 
