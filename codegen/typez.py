@@ -7,6 +7,11 @@ class DefineLang(Enum):
     python = "python"
 
 
+class OutputObjType(Enum):
+    views = "views"
+    fns = "fns"
+
+
 class FnArg(NamedTuple):
     name: str
     type: str
@@ -17,3 +22,13 @@ class FnRecord(NamedTuple):
     name: str
     ret_type: str
     args: List[FnArg]
+
+
+class ColumnRecord(NamedTuple):
+    name: str
+    type: str
+
+
+class TableRecord(NamedTuple):
+    name: str
+    columns: List[ColumnRecord]

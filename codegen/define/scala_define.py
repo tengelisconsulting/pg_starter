@@ -47,7 +47,7 @@ def get_impl_language_fn_def(schema: str, fn: FnRecord) -> str:
     return impl
 
 
-def wrap_function_defs(contents: str) -> str:
+def wrap_fn_defs(contents: str) -> str:
     return f"""import slick.jdbc.PostgresProfile.api._
 
 object DDB {{

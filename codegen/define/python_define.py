@@ -7,7 +7,7 @@ await conn.set_type_codec(
             schema='pg_catalog'
         )
 """
-from typez import DefineLang, FnArg, FnRecord
+from typez import DefineLang, FnArg, FnRecord, TableRecord
 
 
 def _get_calling_sql(schema: str, fn: FnRecord) -> str:
@@ -56,5 +56,26 @@ def get_impl_language_fn_def(schema: str, fn: FnRecord) -> str:
     return impl
 
 
-def wrap_function_defs(contents: str) -> str:
+def _snake_case_to_camel(word):
+    return ''.join(x.capitalize() or '_' for x in word.split('_'))
+
+
+def get_impl_language_model_def(schema: str, view: TableRecord):
+    name = _snake_case_to_camel(view.name)
+    props = [f"{col.name}: {_type_lookup(col.type)}" for col in view.columns]
+    props_content = "\n    ".join(props)
+    return f"""class {name}(NamedTuple):
+    {props_content}
+"""
+
+
+def wrap_view_defs(contents: str) -> str:
+    return f"""from typing import NamedTuple, Dict
+
+
+{contents}
+"""
+
+
+def wrap_fn_defs(contents: str) -> str:
     return contents

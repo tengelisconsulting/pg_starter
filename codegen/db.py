@@ -3,10 +3,11 @@ from typing import List, NamedTuple, Tuple, Optional, Any
 
 import psycopg2
 
-from typez import FnArg, FnRecord
+from typez import FnArg, FnRecord, TableRecord, ColumnRecord
 
 
 RawFn = Tuple[str, str]
+RawView = Tuple[str, str]
 
 
 con = None
@@ -38,8 +39,17 @@ def _parse_raw_fn(raw: RawFn) -> FnRecord:
     )
 
 
+def _parse_raw_table(raw: RawView) -> TableRecord:
+    columns = [ColumnRecord(name=r["name"], type=r["type"])
+               for r in raw[1]]
+    return TableRecord(
+        name=raw[0],
+        columns=columns,
+    )
+
+
 def _fetch_schema_functions(
-        cur, schema
+        cur, schema: str
 ) -> List[RawFn]:
     sql = """
       SELECT p.proname fn_name,
@@ -49,6 +59,28 @@ def _fetch_schema_functions(
         JOIN pg_namespace ns
           ON (p.pronamespace = ns.oid)
        WHERE ns.nspname = %s;
+    """
+    cur.execute(sql, [schema])
+    return cur.fetchall()
+
+
+def _fetch_schema_views(
+        cur, schema: str
+):
+    sql = """
+    select t.table_name as view_name,
+           json_agg(json_build_object(
+             'name', c.column_name,
+             'type', c.data_type
+           ))
+      from information_schema.tables t
+ left join information_schema.columns c
+        on t.table_schema = c.table_schema
+       and t.table_name = c.table_name
+     where table_type = 'VIEW'
+       and t.table_schema = %s
+     group by t.table_name
+    ;
     """
     cur.execute(sql, [schema])
     return cur.fetchall()
@@ -88,6 +120,11 @@ def shutdown():
     return
 
 
-def load_schema_functions(schema) -> List[FnRecord]:
+def load_schema_functions(schema: str) -> List[FnRecord]:
     raw_fns = _with_cur(_fetch_schema_functions)(schema)
     return [_parse_raw_fn(f) for f in raw_fns]
+
+
+def load_schema_views(schema: str) -> List[TableRecord]:
+    raw_views = _with_cur(_fetch_schema_views)(schema)
+    return [_parse_raw_table(f) for f in raw_views]
