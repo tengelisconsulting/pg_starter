@@ -1,9 +1,10 @@
-from typing import List, NamedTuple, Tuple, Optional, Any, Union
+from enum import Enum
+from typing import List, NamedTuple, Tuple, Optional, Any, Union, Literal
 
 
-DefineMode = Union[
-    "scala"
-]
+class DefineLang(Enum):
+    scala = "scala"
+    python = "python"
 
 
 class FnArg(NamedTuple):

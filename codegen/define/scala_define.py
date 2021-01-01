@@ -1,4 +1,4 @@
-from typez import FnArg, FnRecord
+from typez import DefineLang, FnArg, FnRecord
 
 
 def _get_args_sql(fn: FnRecord) -> str:
@@ -8,7 +8,7 @@ def _get_args_sql(fn: FnRecord) -> str:
     ])
 
 
-def get_calling_sql(schema: str, fn: FnRecord) -> str:
+def _get_calling_sql(schema: str, fn: FnRecord) -> str:
     arg_sql = _get_args_sql(fn)
     return f"""\"\"\"
     SELECT {schema}.{fn.name}(
@@ -16,7 +16,7 @@ def get_calling_sql(schema: str, fn: FnRecord) -> str:
     )
     \"\"\""""
 
-def type_lookup(typename: str) -> str:
+def _type_lookup(typename: str) -> str:
     return {
         "text": "String",
         "integer": "Int",
@@ -26,9 +26,9 @@ def type_lookup(typename: str) -> str:
     }[typename]
 
 
-def get_impl_language_args(fn: FnRecord) -> str:
+def _get_fn_args(fn: FnRecord) -> str:
     def fmt_arg(arg: FnArg) -> str:
-        arg_type = type_lookup(arg.type)
+        arg_type = _type_lookup(arg.type)
         if arg.default is None:
             return f"{arg.name}: {arg_type}"
         new_default = arg.default
@@ -43,15 +43,15 @@ def get_impl_language_args(fn: FnRecord) -> str:
     return arg_s
 
 
-def get_impl_language_def(schema: str, fn: FnRecord) -> str:
-    calling_sql = get_calling_sql(schema, fn)
-    impl_fn_args = get_impl_language_args(fn)
-    ret_type = type_lookup(fn.ret_type)
+def get_impl_language_fn_def(schema: str, fn: FnRecord) -> str:
+    calling_sql = _get_calling_sql(schema, fn)
+    impl_fn_args = _get_fn_args(fn)
+    ret_type = _type_lookup(fn.ret_type)
     impl = f"""  def {fn.name}({impl_fn_args}) = sql{calling_sql}.as[{ret_type}]\n"""
     return impl
 
 
-def get_impl_language_wrapping_def(contents: str) -> str:
+def wrap_function_defs(contents: str) -> str:
     return f"""import slick.jdbc.PostgresProfile.api._
 
 object DDB {{
