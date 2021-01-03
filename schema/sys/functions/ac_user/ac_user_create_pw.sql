@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION sys.ac_user_create_pw(
   IN p_pw_hash  TEXT,
   IN p_adhoc  JSONB  DEFAULT NULL
 )
-RETURNS UUID
+RETURNS TEXT
 AS $$
 DECLARE
   v_user_id  UUID  := new_uuid();
@@ -24,7 +24,7 @@ BEGIN
                 p_adhoc
               )
   ;
-  RETURN v_user_id;
+  RETURN v_user_id::TEXT;
 END;
 $$
 LANGUAGE plpgsql

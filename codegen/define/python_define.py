@@ -16,11 +16,11 @@ def _get_calling_sql(schema: str, fn: FnRecord) -> str:
         for i in range(len(fn.args))
     ])
     bindargs = ", ".join([arg.name for arg in fn.args])
-    return f"""return await con.fetchval(\"\"\"
+    return f"""return await db.fetch_val(\"\"\"
     SELECT {schema}.{fn.name}(
       {arg_sql}
     )
-    \"\"\", {bindargs})"""
+    \"\"\", ({bindargs}))"""
 
 
 def _type_lookup(typename: str) -> str:
@@ -49,7 +49,7 @@ def get_impl_language_fn_def(schema: str, fn: FnRecord) -> str:
     calling_sql = _get_calling_sql(schema, fn)
     impl_fn_args = _get_fn_args(fn)
     ret_type = _type_lookup(fn.ret_type)
-    impl = f"""def {fn.name}(con, {impl_fn_args}) -> {ret_type}:
+    impl = f"""async def {fn.name}({impl_fn_args}) -> {ret_type}:
     {calling_sql}
 
 """
@@ -90,4 +90,10 @@ from pypika import Table
 
 
 def wrap_fn_defs(contents: str) -> str:
-    return contents
+    return f"""from typing import Dict
+
+import webskeleton.db as db
+
+
+{contents}
+"""
